@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package eventpb;
+option go_package = "github.com/nkust-monitor-iot-project-2024/central/protos/eventpb";
+
+message MovementInfo {
+    bytes picture = 2;
+    string picture_mime = 3;
+}
+
+message InvadedInfo {
+    string parent_movement_id = 1;
+    repeated Invader invaders = 2;
+}
+
+message Invader {
+    bytes picture = 1;
+    string picture_mime = 3;
+    float confidence = 2;
+}
+
+message EventMessage {
+    reserved 1;   // metadata
+
+    oneof event {
+        MovementInfo movement_info = 2;
+        InvadedInfo invaded_info = 3;
+    }
+}

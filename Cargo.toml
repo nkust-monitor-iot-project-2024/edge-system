@@ -1,0 +1,18 @@
+[package]
+name = "iot-edge-system-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.38"
+opentelemetry = "0.23.0"
+paho-mqtt = "0.12.5"
+prost = "0.12.6"
+prost-types = "0.12.6"
+thiserror = "1.0.61"
+tracing = "0.1.40"
+tracing-opentelemetry = "0.24.0"
+uuid = { version = "1.8.0", features = ["v7"] }
+
+[build-dependencies]
+prost-build = "0.12.6"
