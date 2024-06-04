@@ -1,10 +1,10 @@
 use std::fmt::{self, Formatter, Debug};
 
+use opentelemetry::global::get_text_map_propagator;
 use paho_mqtt::async_client::AsyncClient as MqttClient;
 use paho_mqtt::{MessageBuilder as MqttMessageBuilder, Properties as MqttProps, Property, PropertyCode};
 use prost::Message as ProstMessage;
-use tracing::{trace_span, Level};
-
+use tracing_opentelemetry::OpenTelemetrySpanExt;
 use crate::eventpb;
 
 pub struct CentralMessageQueue {
@@ -37,7 +37,7 @@ impl CentralMessageQueue {
     /// Connect to the MQTT broker.
     ///
     /// You must call this method before calling `publish`.
-    #[tracing::instrument]
+    #[tracing::instrument(err)]
     pub async fn connect(&self) -> Result<(), Error> {
         tracing::info!("connect to the MQTT broker");
 
@@ -52,7 +52,7 @@ impl CentralMessageQueue {
     }
 
     /// Publish the event to the specified topic.
-    #[tracing::instrument(err, fields("otel.kind" = %SpanKind::Internal))]
+    #[tracing::instrument(err)]
     pub async fn publish(&self, event: eventpb::EventMessage) -> Result<(), Error> {
         tracing::info!("packaging the event to MQTT Message");
         let Some(event_type) = event.get_event_type() else {
@@ -69,11 +69,19 @@ impl CentralMessageQueue {
 
         let marshalled_event = event.encode_to_vec();
 
+        tracing::info!(event_id_str, event_emitted_at, "putting properties");
+
         let mut message_properties = MqttProps::new();
         message_properties.push(Property::new_string(PropertyCode::ContentType, "application/x-google-protobuf")?)?;
         message_properties.push(Property::new_string_pair(PropertyCode::UserProperty, "event_id", &event_id_str)?)?;
         message_properties.push(Property::new_string_pair(PropertyCode::UserProperty, "device_id", &self.device_id)?)?;
         message_properties.push(Property::new_string_pair(PropertyCode::UserProperty, "emitted_at", &event_emitted_at)?)?;
+
+        // tracing information
+        let ctx = tracing::Span::current().context();
+        get_text_map_propagator(|propagator| {
+            propagator.inject_context(&ctx, &mut MqttCarrierInjector(&mut message_properties))
+        });
 
         let message = MqttMessageBuilder::new()
             .topic(topic)
@@ -98,8 +106,17 @@ impl Debug for CentralMessageQueue {
     }
 }
 
+pub struct MqttCarrierInjector<'a>(pub &'a mut MqttProps);
+
+impl<'a> opentelemetry::propagation::Injector for MqttCarrierInjector<'a> {
+    fn set(&mut self, key: &str, value: String) {
+        self.0.push_string_pair(PropertyCode::UserProperty, key, &value)
+            .expect("cannot push string pair")
+    }
+}
+
 #[derive(thiserror::Error, Debug)]
-enum Error {
+pub enum Error {
     #[error("create MQTT client: {0}")]
     CreateMqttClient(#[from] paho_mqtt::Error),
 

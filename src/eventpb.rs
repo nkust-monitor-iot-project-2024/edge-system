@@ -18,7 +18,7 @@ impl EventMessage {
 pub enum EventType {
     /// Some creatures entered the room or is moving.
     Movement,
-    /// A person is confirmed that he invaded into the room.
+    /// A person is confirmed that they invaded into the room.
     Invaded,
 }
 
