@@ -1,3 +1,5 @@
+//! Message queue.
+
 use std::fmt::{self, Formatter, Debug};
 
 use opentelemetry::global::get_text_map_propagator;
@@ -7,6 +9,7 @@ use prost::Message as ProstMessage;
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 use crate::eventpb;
 
+/// The message queue that sends the event to the Central system.
 pub struct CentralMessageQueue {
     client: MqttClient,
     device_id: String,
@@ -27,6 +30,7 @@ impl CentralMessageQueue {
         })
     }
 
+    /// Create the message queue from the environment variable.
     pub fn new_from_env() -> Result<CentralMessageQueue, Error> {
         let server_uri = std::env::var("IOT_EDGE_MQTT_SERVER_URI").expect("MQTT_SERVER_URI is not set");
         let device_id = std::env::var("IOT_EDGE_DEVICE_ID").expect("DEVICE_ID is not set");

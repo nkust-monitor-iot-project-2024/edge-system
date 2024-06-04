@@ -1,3 +1,9 @@
+//! The protobuf definition of Events.
+//!
+//! Most of the fields is generated from `proto/event.proto`.
+//! The `event.proto` *must* stay sync with the central system,
+//! otherwise the event may not be accepted.
+
 use core::fmt;
 
 include!(concat!(env!("OUT_DIR"), "/eventpb.rs"));
