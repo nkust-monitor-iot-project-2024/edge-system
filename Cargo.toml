@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.4.38"
+libcamera = "0.2.3"
 opentelemetry = "0.23.0"
 paho-mqtt = "0.12.5"
 prost = "0.12.6"

@@ -3,7 +3,7 @@
     "features": {
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
-            "packages": "cmake"
+            "packages": "cmake,clang,libcamera-ipa,libcamera-dev"
         },
         "ghcr.io/devcontainers-contrib/features/protoc:1": {}
     },
