@@ -6,3 +6,4 @@
 
 pub mod eventpb;
 pub mod mq;
+pub mod camera;
