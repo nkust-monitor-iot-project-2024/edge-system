@@ -1,0 +1,11 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/rust:latest",
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+            "packages": "cmake"
+        },
+        "ghcr.io/devcontainers-contrib/features/protoc:1": {}
+    },
+    "postStartCommand": "cargo check"
+}
